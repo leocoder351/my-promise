@@ -1,2 +1,4 @@
-1. 实现同步调用Promise，单个then注册回调
-2. 实现异步调用Promise
+1. Promise处理同步调用resolve和reject，单个then注册回调
+2. Promise处理异步调用resolve和reject，以及注册多个then函数
+3. 让Promise始终是异步调用，micro task(jobs)，利用setTimeout(macro task(tasks))模拟
+4. Promise的then返回的仍是Promise，并且回调函数中的返回值是下一个Promise的决议值

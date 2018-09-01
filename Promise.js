@@ -39,18 +39,28 @@ Promise.prototype.then = function(onFulfilled, onRejected) {
   const self = this;
   // 判断状态 resolved执行onfulfilled rejected执行onrejected
   if (self.state === 'resolved') {
-    onFulfilled(self.value);
-  } else if (self.state === 'rejected') {
-    onRejected(self.reason);
-  } else if (self.state === 'pending') {
-    self.onResolved.push(() => {
-      // 将onFulfilled回调函数push到成功回调数组中
+    setTimeout(() => {
+      // 为了让回调异步执行
       onFulfilled(self.value);
-    });
-    self.onRejected.push(() => {
-      // 将onRejected回调函数push到失败回调数组中
+    }, 0);
+  } else if (self.state === 'rejected') {
+    setTimeout(() => {
+      // 为了让回调异步执行
       onRejected(self.reason);
-    });
+    }, 0);
+  } else if (self.state === 'pending') {
+    setTimeout(() => {
+      // 为了让回调异步执行
+      self.onResolved.push(() => {
+        // 将onFulfilled回调函数push到成功回调数组中
+        let result = onFulfilled(self.value);
+  
+      });
+      self.onRejected.push(() => {
+        // 将onRejected回调函数push到失败回调数组中
+        onRejected(self.reason);
+      });
+    }, 0);
   }
 };
 

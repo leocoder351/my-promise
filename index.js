@@ -1,9 +1,7 @@
 let Promise = require('./Promise');
 
 let promise = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve(111);
-  }, 1000);
+  resolve(111);
 });
 
 promise.then((data) => {
@@ -21,3 +19,5 @@ promise.then((data) => {
   console.log('second then callback rejected');
   console.log(error);
 });
+
+console.log(222);
