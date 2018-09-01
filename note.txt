@@ -1,0 +1,2 @@
+1. 实现同步调用Promise，单个then注册回调
+2. 实现异步调用Promise
