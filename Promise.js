@@ -137,6 +137,23 @@ Promise.prototype.catch = function(onRejected) {
   return this.then(null, onRejected);
 };
 
+Promise.prototype.finally = function(fn) {
+  return this.then((data) => {
+    setTimeout(fn, 0);
+    return data;
+  }, (reason) => {
+    setTimeout(fn, 0);
+    throw reason;
+  });
+};
+
+Promise.prototype.done = function() {
+  return this.catch((reason) => {
+    console.log('error', reason);
+  });
+}
+
+
 Promise.all = function(promiseArr) {
   return new Promise((resolve, reject) => {
     let result = [];
@@ -164,6 +181,7 @@ Promise.race = function(promiseArr) {
     }
   });
 };
+
 
 Promise.defer = Promise.deferred = function () {
   let dfd = {};
