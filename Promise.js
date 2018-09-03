@@ -1,67 +1,178 @@
 function Promise(executor) {
-  const self = this;
-  self.state = 'pending';
+  let self = this;
+  self.status = 'pending';
   self.value = undefined;
   self.reason = undefined;
-  self.onResolved = [];
-  self.onRejected = [];
+  self.onResolvedCallback = [];
+  self.onRejectedCallback = [];
 
-  function resolve(data) {
-    // 把状态由 pending -> resolved
-    if (self.state === 'pending') {
-      self.state = 'resolved';
-      self.value = data;
-      self.onResolved.forEach((fn) => {
+  function resolve(value) {
+    if (self.status === 'pending') {
+      self.status = 'resolved';
+      self.value = value;
+
+      self.onResolvedCallback.forEach((fn) => {
         fn();
       });
     }
   }
 
   function reject(reason) {
-    // 把状态由 pending -> rejected
-    if (self.state === 'pending') {
-      self.state = 'rejected';
+    if (self.status === 'pending') {
+      self.status = 'rejected';
       self.reason = reason;
-      self.onRejected.forEach((fn) => {
+
+      self.onRejectedCallback.forEach((fn) => {
         fn();
       });
     }
   }
 
   try {
+    // 所有回调函数的执行都要放到try..catch中，因为不是自己的代码有可能会出错
     executor(resolve, reject);
-  } catch(reason) {
-    reject(reason);
+  } catch (error) {
+    reject(error);
   }
 }
 
-Promise.prototype.then = function(onFulfilled, onRejected) {
-  const self = this;
-  // 判断状态 resolved执行onfulfilled rejected执行onrejected
-  if (self.state === 'resolved') {
-    setTimeout(() => {
-      // 为了让回调异步执行
-      onFulfilled(self.value);
-    }, 0);
-  } else if (self.state === 'rejected') {
-    setTimeout(() => {
-      // 为了让回调异步执行
-      onRejected(self.reason);
-    }, 0);
-  } else if (self.state === 'pending') {
-    setTimeout(() => {
-      // 为了让回调异步执行
-      self.onResolved.push(() => {
-        // 将onFulfilled回调函数push到成功回调数组中
-        let result = onFulfilled(self.value);
-  
-      });
-      self.onRejected.push(() => {
-        // 将onRejected回调函数push到失败回调数组中
-        onRejected(self.reason);
-      });
-    }, 0);
+function resolvePromise(promise2, x, resolve, reject) {
+  if (promise2 === x) {
+    return reject(new TypeError('循环引用'));
   }
+
+  let called = false;
+
+  if (x != null && (typeof x == 'object' || typeof x == 'function')) {
+    // x是对象或者函数，因为typeof null 是 'object'，所以这里要排除null
+    try {
+      let then = x.then;
+      if (typeof then === 'function') {
+        // 是thenable函数，符合Promise要求
+        then.call(x, (y) => {
+          // 返回值y有可能还是Promise，也有可能是普通值，所以这里继续递归进行resolvePromise
+          // 直到最后x是非thenable值，然后resolve(x)
+          if (called) return;
+          called = true;
+          resolvePromise(promise2, y, resolve, reject);
+        }, (error) => {
+          if (called) return;
+          called = true;
+          reject(error);
+        });
+      } else {
+        // 是对象或者函数，但没有thenable，直接返回
+        resolve(x);
+      }
+    } catch (error) {
+      if (called) return;
+      called = true;
+      reject(error);
+    }
+  } else {
+    // x是普通值
+    resolve(x);
+  }
+}
+
+Promise.prototype.then = function(onFuifilled, onRejected) {
+  onFuifilled = typeof onFuifilled === 'function' ? onFuifilled : value => {
+    return value;
+  };
+  onRejected = typeof onRejected === 'function' ? onRejected : reason => {
+    throw reason;
+  };
+
+  let self = this;
+
+  // then的返回值也是个promise
+  let promise2 = new Promise((resolve, reject) => {
+    if (self.status === 'pending') {
+      self.onResolvedCallback.push(() => {
+        setTimeout(() => {
+          // 所有回调函数的执行都要放到try..catch中，因为不是自己的代码有可能会出错
+          try {
+            let x = onFuifilled(self.value);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
+      });
+      self.onRejectedCallback.push(() => {
+        setTimeout(() => {
+          try {
+            let x = onRejected(self.reason);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        }, 0);
+      });
+    } else if (self.status === 'resolved') {
+      setTimeout(() => {
+        try {
+          let x = onFuifilled(self.value);
+          resolvePromise(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+      }, 0);
+    } else if (self.status === 'rejected') {
+      setTimeout(() => {
+        try {
+          let x = onRejected(self.reason);
+          resolvePromise(promise2, x, resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+      }, 0);
+    }
+  });
+  
+  return promise2;
 };
+
+Promise.prototype.catch = function(onRejected) {
+  return this.then(null, onRejected);
+};
+
+Promise.all = function(promiseArr) {
+  return new Promise((resolve, reject) => {
+    let result = [];
+    let count = 0;
+
+    for (let i = 0; i < promiseArr.length; i++) {
+      promiseArr[i].then((data) => {
+        result[i] = data;
+        count++;
+
+        if (count === promiseArr.length) {
+          resolve(result);
+        }
+      }, reject)
+    }
+  });
+};
+
+Promise.race = function(promiseArr) {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promiseArr.length; i++) {
+      promiseArr[i].then((data) => {
+        resolve(data);
+      }, reject)
+    }
+  });
+};
+
+Promise.defer = Promise.deferred = function () {
+  let dfd = {};
+  dfd.promise = new Promise((resolve, reject) => {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
+}
+
 
 module.exports = Promise;

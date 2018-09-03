@@ -2,3 +2,4 @@
 2. Promise处理异步调用resolve和reject，以及注册多个then函数
 3. 让Promise始终是异步调用，micro task(jobs)，利用setTimeout(macro task(tasks))模拟
 4. Promise的then返回的仍是Promise，并且回调函数中的返回值是下一个Promise的决议值
+5. then中onFulfilled和onRejected两个回调函数不是必传参数，并且要忽略掉非函数的参数，要有默认值
