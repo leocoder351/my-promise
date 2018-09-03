@@ -151,8 +151,7 @@ Promise.prototype.done = function() {
   return this.catch((reason) => {
     console.log('error', reason);
   });
-}
-
+};
 
 Promise.all = function(promiseArr) {
   return new Promise((resolve, reject) => {
@@ -182,6 +181,18 @@ Promise.race = function(promiseArr) {
   });
 };
 
+Promise.resolve = function(value) {
+  var promise = new Promise((resolve, reject) => {
+    resolvePromise(promise, value, resolve, reject);
+  })
+  return promise;
+};
+
+Promise.reject = function(reason) {
+  return new Promise((resolve, reject) => {
+    reject(reason);
+  });
+};
 
 Promise.defer = Promise.deferred = function () {
   let dfd = {};

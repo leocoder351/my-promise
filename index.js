@@ -1,4 +1,5 @@
 let Promise = require('./Promise');
+
 // 测试1 - 同步触发resolve
 new Promise((resolve, reject) => {
   resolve('aaaa');
