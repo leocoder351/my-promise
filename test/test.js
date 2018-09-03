@@ -1,4 +1,4 @@
-let Promise = require('../Promise');
+let Promise = require('../MyPromise');
 let expect = require('expect.js');
 
 describe('Promise单元测试', function () {

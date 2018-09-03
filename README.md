@@ -25,7 +25,7 @@
 ## 使用方法
 1. 引入
 ```
-let Promise = require('./Promise');
+let Promise = require('./MyPromise');
 ```
 2. 使用
 ```
