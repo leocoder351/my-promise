@@ -1,6 +1,6 @@
 # my-promise [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Promise.js**是基于[PromiseA+规范](https://promisesaplus.com/)实现的一款 Mini Promise 类库。
+**MyPromise.js**是基于[PromiseA+规范](https://promisesaplus.com/)实现的一款 Mini Promise 类库。
 
 ## 作者
 **liuxuan**
