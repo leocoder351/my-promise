@@ -40,10 +40,12 @@ new Promise((resolve, reject) => {
 
 ## 单元测试
 1. 自己写测试
+
 index.js是使用该Promise的一些常用例子
 test/test.js是基于 **mocha + expect** 写的几个单元测试例子
 
 2. 使用 **promises-aplus-tests** 测试
+
 - 安装
 ```
 npm install promises-aplus-tests -g
