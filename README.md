@@ -50,7 +50,7 @@ npm install promises-aplus-tests -g
 ```
 - 使用
 ```
-promises-aplus-tests Promise.js
+promises-aplus-tests MyPromise.js
 ```
 
 ## 完整测试报告
