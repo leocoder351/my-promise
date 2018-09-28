@@ -148,8 +148,8 @@ Promise.prototype.finally = function(fn) {
 };
 
 Promise.prototype.done = function() {
-  return this.catch((reason) => {
-    console.log('error', reason);
+  this.catch((reason) => {
+    throw reason;
   });
 };
 
